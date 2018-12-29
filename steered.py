@@ -37,15 +37,19 @@ openmm_simulation.reporters.append(app.StateDataReporter('state_forward.log', 50
     potentialEnergy=True, temperature=True))
 
 cvforce = []
-for force in openmm_system_d.getForces():
+for force in openmm_system.getForces():
     forceType = force.__class__.__name__
     if forceType == 'CustomCVForce':
         cvforce.append(force)
 
 openmm_simulation.context.setParameter('K_parallel', 1250*unit.kilojoules_per_mole/unit.nanometer**2)
+positions = openmm_simulation.context.getState(getPositions=True).getPositions()
 structure = pmd.openmm.load_topology(pdbx.topology, system=openmm_system, xyz=positions)
 pe = pmd.openmm.energy_decomposition(structure, openmm_simulation.context)
 logger.debug(pe)
+# number of states = 160
+# bottom ---> top
+#for i in range(159,-1,-1):
 # This is top ----> bottom
 for i in range(0,160):
    lbda = i/159
